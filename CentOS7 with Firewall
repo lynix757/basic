@@ -1,0 +1,11 @@
+enable firewall
+firewall-cmd --permanent --zone=public --add-service=http
+firewall-cmd --permanent --zone=public --add-service=https
+firewall-cmd --permanent --zone=public --add-service=mysql
+firewall-cmd --permanent --zone=public --add-port=5959/tcp
+firewall-cmd --reload
+
+systemctl restart httpd
+
+https://www.digitalocean.com/community/tutorials/how-to-set-up-a-firewall-using-firewalld-on-centos-7
+------------------------------------------------------------------------------------

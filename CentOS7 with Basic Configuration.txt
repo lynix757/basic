@@ -1,0 +1,52 @@
+CentOS 7 Basic
+
+Hostname and Network Setup
+
+use Command   : nmtui
+
+or
+
+show hostname use 	" hostnamectl "
+set hostname use 	" hostnamectl set-hostname abc555 "
+
+show ip address use 	" ip address "
+setup ip address use 	" nmtui "
+
+Ref.
+http://thaiopensource.org/%E0%B9%80%E0%B8%9B%E0%B8%A5%E0%B8%B5%E0%B9%88%E0%B8%A2%E0%B8%99-hostname-%E0%B8%9A%E0%B8%99-centos-7-%E0%B9%81%E0%B8%A5%E0%B8%B0-rhel-7-%E0%B8%94%E0%B9%89%E0%B8%A7%E0%B8%A2-hostnamectl/
+https://spalinux.com/2015/06/centos-7-using-nmtui-to-modify-network-configuration
+
+------------------------------------------------------------------------------------
+Time Setup
+
+show timedate use 	" timedatectl "
+set timezone use 	" timedatectl set-timezone Asia/Bangkok "
+
+https://spalinux.com/2015/06/centos-7-use-chrony-to-sync-time-with-ntp-server
+
+------------------------------------------------------------------------------------
+SSH
+
+edit /etc/ssh/sshd.conf
+service sshd restart
+chkconfig sshd on -->> systemctl enable sshd.service
+
+------------------------------------------------------------------------------------
+Update
+yum update
+yun install screen htop
+
+SNMP
+http://www.itadminstrator.com/2015/12/how-to-install-and-configure-snmp-on.html
+
+yum install net-snmp net-snmp-utils -y
+systemctl enable snmpd
+
+
+systemctl start snmpd
+systemctl stop snmpd
+systemctl restart snmpd
+
+systemctl enable snmpd
+systemctl disable snmpd
+systemctl mask snmpd

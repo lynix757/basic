@@ -1,0 +1,144 @@
+http://www.arnut.com/bb/node/668
+httpd Install
+
+rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+rpm -Uvh https://mirror.webtatic.com/yum/el7/webtatic-release.rpm
+yum update
+
+yum -y install httpd mod_ssl
+yum install yum-plugin-replace
+yum replace php-common --replace-with=php56w-common
+yum -y install php56w php56w-opcache php56w-xml php56w-mcrypt php56w-gd php56w-devel php56w-mysql php56w-intl php56w-mbstring php56w-bcmath php56w-soap php56w-xmlrpc php56w-imap php56w-ldap
+
+rpm -Uvh http://repo.mysql.com/mysql-community-release-el7-5.noarch.rpm
+yum install mysql-server
+systemctl start mysqld.service
+mysql_secure_installation
+
+
+****
+yum replace mysql-libs --replace-with=mysql55w-libs
+yum install mysql55w-server mysql55w
+
+phpMyAdmin
+
+rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+yum install -y phpMyAdmin
+2. ปรับแต่งไฟล์คอนฟิก โดยกำหนดไอพีที่อนุญาติให้เข้าใช้งาน
+vi /etc/httpd/conf.d/phpMyAdmin.conf
+[...]
+Alias /phpMyAdmin /usr/share/phpMyAdmin
+Alias /phpmyadmin /usr/share/phpMyAdmin
+AddDefaultCharset UTF-8
+# Apache 2.4
+Require ip 127.0.0.1 10.0.0.0/8
+Require ip ::1 2001:3c8:1307::/48
+# Apache 2.2
+Order Deny,Allow
+Deny from All
+Allow from 127.0.0.1 10.0.0.0/8
+Allow from ::1 2001:3c8:1307::/48
+# Apache 2.4
+Require ip 127.0.0.1 10.0.0.0/8
+Require ip ::1 2001:3c8:1307::/48
+[...]
+
+systemctl restart httpd
+
+[root@foreignresearcher ~]# vi /etc/httpd/conf.d/phpMyAdmin.conf
+# phpMyAdmin - Web based MySQL browser written in php
+#
+# Allows only localhost by default
+#
+# But allowing phpMyAdmin to anyone other than localhost should be considered
+# dangerous unless properly secured by SSL
+
+Alias /phpMyAdmin /usr/share/phpMyAdmin
+Alias /phpmyadmin /usr/share/phpMyAdmin
+
+<Directory /usr/share/phpMyAdmin/>
+   AddDefaultCharset UTF-8
+
+   <IfModule mod_authz_core.c>
+     # Apache 2.4
+     <RequireAny>
+      # Require all granted
+       Require ip 127.0.0.1 10.0.0.0/8
+       Require ip ::1 2001:3c8:1307::/48
+     </RequireAny>
+   </IfModule>
+   <IfModule !mod_authz_core.c>
+     # Apache 2.2
+     Order Deny,Allow
+     Deny from All
+     Allow from 127.0.0.1
+     Allow from ::1
+   </IfModule>
+</Directory>
+
+<Directory /usr/share/phpMyAdmin/setup/>
+   <IfModule mod_authz_core.c>
+     # Apache 2.4
+     <RequireAny>
+     #  Require all granted
+       Require ip 127.0.0.1 10.0.0.0/8
+       Require ip ::1 2001:3c8:1307::/48
+     </RequireAny>
+   </IfModule>
+   <IfModule !mod_authz_core.c>
+     # Apache 2.2
+     Order Deny,Allow
+     Deny from All
+     Allow from 127.0.0.1
+     Allow from ::1
+   </IfModule>
+</Directory>
+
+# These directories do not require access over HTTP - taken from the original
+# phpMyAdmin upstream tarball
+#
+<Directory /usr/share/phpMyAdmin/libraries/>
+    Order Deny,Allow
+    Deny from All
+    Allow from None
+</Directory>
+
+<Directory /usr/share/phpMyAdmin/setup/lib/>
+    Order Deny,Allow
+    Deny from All
+    Allow from None
+</Directory>
+
+<Directory /usr/share/phpMyAdmin/setup/frames/>
+    Order Deny,Allow
+    Deny from All
+    Allow from None
+"/etc/httpd/conf.d/phpMyAdmin.conf" 77L, 1895C written
+[root@foreignresearcher ~]# systemctl restart httpd
+
+
+
+Apache Tuning
+/etc/httpd/conf.modules.d/00-mpm.conf
+LoadModule mpm_event_module modules/mod_mpm_event.so
+
+http://httpd.apache.org/docs/2.4/mod/mod_dir.html#directoryindex
+
+1. Disable Trace HTTP Request
+httpd.conf
+TraceEnable off
+
+2. Run as separate User & Group
+httpd.conf
+User apache
+Group apache
+
+3. Disable Signature
+httpd.conf
+ServerSignature Off
+
+4. Disable Banner
+httpd.conf
+ServerTokens Prod
+
+SSLCipherSuite ALL:!aNULL:!ADH:!eNULL:!LOW:!EXP:RC4+RSA:+HIGH:+MEDIUM

@@ -1,0 +1,55 @@
+docker
+curl -fsSL https://get.docker.com/ | sh
+systemctl enable docker.service
+systemctl start docker.service
+docker version
+
+yum install epel-release
+yum install -y python-pip
+pip install docker-compose
+yum upgrade python*
+
+http://linux.sothorn.org/topics/264
+https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-on-centos-7
+
+NETDATA Monitoring
+wget https://raw.githubusercontent.com/titpetric/netdata/master/fakenet.sh
+chmod a+x fakenet.sh
+nohup ./fakenet.sh >/dev/null 2>&1 &
+
+/etc/rc.d/rc/local
+nohup /root/fakenet.sh >/dev/null 2>&1 &
+ntpdate -u time.navy.mi.th
+
+docker run --restart=always -d --cap-add SYS_PTRACE \
+-v /proc:/host/proc:ro \
+-v /sys:/host/sys:ro \
+-v /dev/shm/fakenet:/fakenet/proc/net \
+-v /var/log/httpd/:/var/log/httpd/ \
+-v /var/log/nginx/:/var/log/nginx/ \
+-v /var/run/docker.sock:/var/run/docker.sock \
+-v /etc/localtime:/etc/localtime \
+-v /var/customconfig/netdata/dashboard/:/usr/share/netdata/web/dashboard/ \
+-p 5959:19999 titpetric/netdata
+
+can access into docker container with command "docker exec -i -t container-id /bin/bash"
+
+admin can monitoring system by http://10.254.22.1:5959
+http://10.254.22.1:5959/tv.html
+
+admin can monitoring system by http://10.254.22.1:5959
+
+GoAccess
+docker run --rm -it -v /var/log/httpd/:/var/log/httpd joelchen/goaccess
+goaccess -f /var/log/httpd/access.log
+
+template
+cat /var/log/httpd/access.log | docker run --rm -i diyan/goaccess   --time-format='%H:%M:%S'   --date-format='%d/%b/%Y'   --log-format='%h %^[%d:%t %^] "%r" %s %b "%R" "%u"' > /var/www/html/access.html
+
+mycustom
+cat /var/log/httpd/access.log | docker run --rm -i diyan/goaccess   --time-format='%H:%M:%S'   --date-format='%d/%b/%Y'   --log-format='%h %l %u %t \"%r\" %>s %b' > /var/www/html/access.html
+
+Logs Format
+https://httpd.apache.org/docs/2.4/logs.html
+10.0.1.13 - - [29/Apr/2017:06:13:17 +0700] "GET / HTTP/1.1" 200 87309 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.81 Safari/537.36"
+%h %l %u %t \"%r\" %>s %b
